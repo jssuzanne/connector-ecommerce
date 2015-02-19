@@ -83,9 +83,13 @@ class SaleOrderOnChange(OnChangeManager):
                                              **kwargs)
         self.merge_values(order, res)
 
+        # TODO: new api onchanges work on recordset!
+        # onchange_payment_method_id_set_payment_term and
+        # onchange_workflow_process_id are new onchanges
         if order.get('payment_method_id'):
             # apply payment method
             args, kwargs = self._get_payment_method_id_onchange_param(order)
+            # TODO replace by onchange_payment_method_id_set_payment_term
             res = sale_model.onchange_payment_method_id(self.session.cr,
                                                         self.session.uid,
                                                         *args,
