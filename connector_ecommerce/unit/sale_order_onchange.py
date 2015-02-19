@@ -91,7 +91,7 @@ class SaleOrderOnChange(OnChangeManager):
                                                         *args,
                                                         **kwargs)
 
-        self.merge_values(order, res)
+            self.merge_values(order, res)
 
         if order.get('workflow_process_id'):
             # apply default values from the workflow
@@ -100,7 +100,7 @@ class SaleOrderOnChange(OnChangeManager):
                                                           self.session.uid,
                                                           *args,
                                                           **kwargs)
-        self.merge_values(order, res)
+            self.merge_values(order, res)
         return order
 
     def _get_product_id_onchange_param(self, line, previous_lines, order):
