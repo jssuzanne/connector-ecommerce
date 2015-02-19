@@ -224,8 +224,7 @@ class SaleOrderOnChange(OnChangeManager):
         :rtype: dict
         """
         # play onchange on sale order
-        with self.session.change_context(dict(shop_id=order.get('shop_id'))):
-            order = self._play_order_onchange(order)
+        order = self._play_order_onchange(order)
         # play onchange on sale order line
         processed_order_lines = []
         line_lists = [order_lines]
