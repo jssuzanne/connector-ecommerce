@@ -23,6 +23,7 @@
 
 import logging
 
+from openerp import models
 from openerp.osv import orm, fields, osv
 from openerp.tools.translate import _
 from openerp import netsvc
@@ -291,8 +292,8 @@ class SpecialOrderLineBuilder(ConnectorUnit):
     """
     _model_name = None
 
-    def __init__(self, environment):
-        super(SpecialOrderLineBuilder, self).__init__(environment)
+    def __init__(self, connector_env):
+        super(SpecialOrderLineBuilder, self).__init__(connector_env)
         self.product = None  # id or browse_record
         # when no product_id, fallback to a product_ref
         self.product_ref = None  # tuple (module, xmlid)
@@ -304,16 +305,13 @@ class SpecialOrderLineBuilder(ConnectorUnit):
     def get_line(self):
         assert self.product_ref or self.product
         assert self.price_unit is not None
-        session = self.session
 
-        product = product_id = self.product
-        if product_id is None:
-            model_data_obj = session.pool.get('ir.model.data')
-            __, product_id = model_data_obj.get_object_reference(
-                session.cr, session.uid, *self.product_ref)
+        product = self.product
+        if product is None:
+            product = self.env.ref('.'.join(self.product_ref))
 
-        if not isinstance(product_id, orm.browse_record):
-            product = session.env['product.product'].browse(product_id)
+        if not isinstance(product, models.BaseModel):
+            product = self.env['product.product'].browse(product)
         return {'product_id': product.id,
                 'name': product.name,
                 'product_uom': product.uom_id.id,
@@ -326,8 +324,8 @@ class ShippingLineBuilder(SpecialOrderLineBuilder):
     """ Return values for a Shipping line """
     _model_name = None
 
-    def __init__(self, environment):
-        super(ShippingLineBuilder, self).__init__(environment)
+    def __init__(self, connector_env):
+        super(ShippingLineBuilder, self).__init__(connector_env)
         self.product_ref = ('connector_ecommerce', 'product_product_shipping')
         self.sequence = 999
 
@@ -337,8 +335,8 @@ class CashOnDeliveryLineBuilder(SpecialOrderLineBuilder):
     _model_name = None
     _model_name = None
 
-    def __init__(self, environment):
-        super(CashOnDeliveryLineBuilder, self).__init__(environment)
+    def __init__(self, connector_env):
+        super(CashOnDeliveryLineBuilder, self).__init__(connector_env)
         self.product_ref = ('connector_ecommerce',
                             'product_product_cash_on_delivery')
         self.sequence = 995
@@ -348,8 +346,8 @@ class GiftOrderLineBuilder(SpecialOrderLineBuilder):
     """ Return values for a Gift line """
     _model_name = None
 
-    def __init__(self, environment):
-        super(GiftOrderLineBuilder, self).__init__(environment)
+    def __init__(self, connector_env):
+        super(GiftOrderLineBuilder, self).__init__(connector_env)
         self.product_ref = ('connector_ecommerce',
                             'product_product_gift')
         self.sign = -1
