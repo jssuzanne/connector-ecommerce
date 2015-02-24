@@ -313,7 +313,7 @@ class SpecialOrderLineBuilder(ConnectorUnit):
                 session.cr, session.uid, *self.product_ref)
 
         if not isinstance(product_id, orm.browse_record):
-            product = session.browse('product.product', product_id)
+            product = session.env['product.product'].browse(product_id)
         return {'product_id': product.id,
                 'name': product.name,
                 'product_uom': product.uom_id.id,
